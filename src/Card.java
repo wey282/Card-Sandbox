@@ -18,7 +18,11 @@ public class Card {
     private int number;
     private int type;
     private double angle;
-    
+    private boolean held;
+
+    private int numberOfHeldCards = 0;
+
+
     public Card(int number, int type, int x, int y, boolean revealed) {
         this.revealed = revealed;
         this.x = x;
@@ -73,6 +77,12 @@ public class Card {
             }
             g.drawString(s, x+10, y + (int)(font.getSize()*1.5));
         }
+        if (numberOfHeldCards > 0) {
+            g.setColor(Color.yellow);
+            g.setFont(font);
+            g.drawString(numberOfHeldCards + "", x, (int)(y + HEIGHT + 0.7*font.getSize()));
+        }
+
         g.rotate(-angle, x+WIDTH/2, y+HEIGHT/2);
     }
 
@@ -115,4 +125,18 @@ public class Card {
     public void setAngle(int wheelRotation) {
         angle += Math.PI*0.125*wheelRotation;
     }
+
+    public boolean isHeld() {
+        return held;
+    }
+
+    public void setHeld(boolean b) {
+        held = b;
+    }
+
+    public void setNumberOfHeldCards(int numberOfHeldCards) {
+        this.numberOfHeldCards = numberOfHeldCards;
+    }
+
+
 }
