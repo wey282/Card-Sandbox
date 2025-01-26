@@ -46,6 +46,8 @@ public class App {
 
     private static void initCards() {
         cards = new ArrayList<>();
+        cards.add(new Joker(x, y, false, 0));
+        cards.add(new Joker(x, y, false, 1));
         for (int type = 0; type < 4; type++) {
             for (int i = 1; i <= 13; i++) {
                 cards.add(new Card(i, type, x, y, false));
@@ -70,7 +72,9 @@ public class App {
         image = toolkit.getImage("icons/Closed Hand.png");
         closedHand = toolkit.createCustomCursor(image , new Point(frame.getX(), 
                        frame.getY()), "img");
-        defaultCursor = Cursor.getDefaultCursor();
+        image = toolkit.getImage("icons/Default Hand.png");
+        defaultCursor = toolkit.createCustomCursor(image , new Point(frame.getX(), 
+                        frame.getY()), "img");
     }
 
     private static <T> void shuffle(List<T> l) {
@@ -177,13 +181,13 @@ public class App {
         panel.repaint();
     }
 
-    public static void mouseReleased() {
+    public static void mouseReleased(MouseEvent e) {
         selectedCards.forEach(c -> c.setHeld(false));
         selectedCards.clear();
         if (mainCard != null)
             mainCard.setNumberOfHeldCards(0);
         mainCard = null;
-        frame.setCursor(openHand);
+        mouseMoved(e);
         if (selectedDie != null) {
             selectedDie.roll();
             panel.repaint();
@@ -239,5 +243,65 @@ public class App {
             frame.setCursor(openHand);
         else
             frame.setCursor(defaultCursor);
+    }
+
+    public static JFrame getFrame() {
+        return frame;
+    }
+
+    public static JPanel getPanel() {
+        return panel;
+    }
+
+    public static List<Card> getCards() {
+        return cards;
+    }
+
+    public static List<Die> getDice() {
+        return dice;
+    }
+
+    public static int getX() {
+        return x;
+    }
+
+    public static int getY() {
+        return y;
+    }
+
+    public static Card getMainCard() {
+        return mainCard;
+    }
+
+    public static List<Card> getSelectedCards() {
+        return selectedCards;
+    }
+
+    public static Die getSelectedDie() {
+        return selectedDie;
+    }
+
+    public static Point getOffset() {
+        return offset;
+    }
+
+    public static boolean isSelectingMultipleCards() {
+        return selectingMultipleCards;
+    }
+
+    public static boolean isSelectingExtraCard() {
+        return selectingExtraCard;
+    }
+
+    public static Cursor getOpenHand() {
+        return openHand;
+    }
+
+    public static Cursor getClosedHand() {
+        return closedHand;
+    }
+
+    public static Cursor getDefaultCursor() {
+        return defaultCursor;
     }
 }

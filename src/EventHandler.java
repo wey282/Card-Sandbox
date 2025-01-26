@@ -26,7 +26,7 @@ public class EventHandler implements MouseListener, MouseMotionListener, MouseWh
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        App.mouseReleased();
+        App.mouseReleased(e);
     }
 
     @Override

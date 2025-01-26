@@ -120,8 +120,6 @@ public class Card {
         revealed = !revealed;
     }
 
-
-
     public void setAngle(int wheelRotation) {
         angle += Math.PI*0.125*wheelRotation;
     }
@@ -138,5 +136,27 @@ public class Card {
         this.numberOfHeldCards = numberOfHeldCards;
     }
 
+    public static int getWidth() {
+        return WIDTH;
+    }
 
+    public static int getHeight() {
+        return HEIGHT;
+    }
+
+    public static Font getFont() {
+        return font;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public double getAngle() {
+        return angle;
+    }
+
+    public int getNumberOfHeldCards() {
+        return numberOfHeldCards;
+    }
 }
