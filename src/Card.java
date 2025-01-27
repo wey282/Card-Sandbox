@@ -1,4 +1,8 @@
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 public class Card {
     public static final int DIAMONDS = 0;
@@ -6,10 +10,23 @@ public class Card {
     public static final int HEARTS = 2;
     public static final int CLUBS = 3;
 
-    public static final int WIDTH = 63;
-    public static final int HEIGHT = 88;
+    public static final int WIDTH = 126;
+    public static final int HEIGHT = 176;
 
-    public static final Font font = new Font("Cascadia", Font.PLAIN, 50);
+    public static Image closedImage;
+    public static Image openedImage;
+    public static Image selectedClosedImage;
+    public static Image selectedOpenedImage;
+    public static final Image[] blackNumberImages = new Image[13];
+    public static final Image[] redNumberImages = new Image[13];
+    public static Image clubsImage;
+    public static Image spadesImage;
+    public static Image heartsImage;
+    public static Image diamondsImage;
+    public static Image redJokerImage;
+    public static Image blackJokerImage;
+
+    public static final Font font = new Font("Cascadia", Font.PLAIN, 100);
 
     public boolean selected = false;
 
@@ -37,45 +54,28 @@ public class Card {
     public void draw(Graphics2D g) {
         g.rotate(angle, x+WIDTH/2, y+HEIGHT/2);
         
-        g.setColor(revealed ? Color.white : Color.red);
-        g.fillRect(x, y, WIDTH, HEIGHT);
-        g.setStroke(new BasicStroke(5));
-        if (selected)
-            g.setColor(Color.yellow);
-        else
-            g.setColor(Color.black);
-        g.drawRect(x, y, WIDTH, HEIGHT);
+        g.drawImage(revealed ? (selected ? selectedOpenedImage : openedImage) 
+                             : (selected ? selectedClosedImage : closedImage), x, y, WIDTH, HEIGHT, null); 
+
         if (revealed) {
             if (type == DIAMONDS || type == HEARTS)
-                g.setColor(Color.red);
+                g.drawImage(redNumberImages[number-1], x+WIDTH/8, y+WIDTH/8, WIDTH/2, WIDTH/2, null);
             else
-                g.setColor(Color.black);
-            g.setFont(font);
-            String s = ""+number;
-            if (number == 1) 
-                s = "A";
-            else if (number == 11)
-                s = "J";
-            else if (number == 12) 
-                s = "Q";
-            else if (number == 13)
-                s = "K";
-            g.drawString(s, x, y + (int)(font.getSize()*0.7));
+                g.drawImage(blackNumberImages[number-1], x+WIDTH/8, y+WIDTH/8, WIDTH/2, WIDTH/2, null);
             switch (type) {
                 case DIAMONDS:
-                    s = "♦";
+                    g.drawImage(diamondsImage, x+WIDTH/6, y+HEIGHT/2, WIDTH/2, WIDTH/2, null);
                     break;
                 case HEARTS:
-                    s = "♥";
+                    g.drawImage(heartsImage, x+WIDTH/6, y+HEIGHT/2, WIDTH/2, WIDTH/2, null);
                     break;
                 case CLUBS:
-                    s = "♣";
+                    g.drawImage(clubsImage, x+WIDTH/6, y+HEIGHT/2, WIDTH/2, WIDTH/2, null);
                     break;
                 case SPADES:
-                    s = "♠";
+                    g.drawImage(spadesImage, x+WIDTH/6, y+HEIGHT/2, WIDTH/2, WIDTH/2, null);
                     break;
             }
-            g.drawString(s, x+10, y + (int)(font.getSize()*1.5));
         }
         if (numberOfHeldCards > 0) {
             g.setColor(Color.yellow);
@@ -87,8 +87,8 @@ public class Card {
     }
 
     public boolean inShape(float x, float y) {
-        return x > this.x && this.x + WIDTH  > x 
-            && y > this.y && this.y + HEIGHT > y;
+        return x + MyCursor.SIZE > this.x && this.x + WIDTH  > x 
+            && y + MyCursor.SIZE > this.y && this.y + HEIGHT > y;
     }
 
     public void touchEvent(int x, int y) {
@@ -158,5 +158,24 @@ public class Card {
 
     public int getNumberOfHeldCards() {
         return numberOfHeldCards;
+    }
+
+    public static void loadImages() throws IOException {
+        closedImage = ImageIO.read(new File("sprites/Base/Closed Card.png"));
+        openedImage = ImageIO.read(new File("sprites/Base/Open Card.png"));
+        selectedClosedImage = ImageIO.read(new File("sprites/Base/Selected Closed Card.png"));
+        selectedOpenedImage = ImageIO.read(new File("sprites/Base/Selected Open Card.png"));
+        for (int i = 1; i < blackNumberImages.length+1; i++) {
+            blackNumberImages[i-1] = ImageIO.read(new File("sprites/Numbers/b"+i+".png"));
+        }
+        for (int i = 1; i < redNumberImages.length+1; i++) {
+            redNumberImages[i-1] = ImageIO.read(new File("sprites/Numbers/r"+i+".png"));
+        }
+        clubsImage = ImageIO.read(new File("sprites/Suits/Club.png"));
+        spadesImage = ImageIO.read(new File("sprites/Suits/Spade.png"));
+        heartsImage = ImageIO.read(new File("sprites/Suits/Heart.png"));
+        diamondsImage = ImageIO.read(new File("sprites/Suits/Diamond.png"));
+        redJokerImage = ImageIO.read(new File("sprites/Jokers/red.png"));
+        blackJokerImage = ImageIO.read(new File("sprites/Jokers/black.png"));
     }
 }

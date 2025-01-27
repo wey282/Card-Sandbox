@@ -3,6 +3,7 @@ import javax.swing.JPanel;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -20,7 +21,7 @@ public class App {
     private static List<Card> cards;
     private static List<Die> dice;
 
-    private static final int x = 100, y = 100;
+    private static final int x = 500, y = 500;
 
     private static Card mainCard;
     private static List<Card> selectedCards = new ArrayList<>();
@@ -30,17 +31,33 @@ public class App {
     private static boolean selectingMultipleCards = false;
     private static boolean selectingExtraCard = false;
 
-    private static Cursor openHand;
-    private static Cursor closedHand;
-    private static Cursor defaultCursor;
+    private static MyCursor cursor;
+    private static Image openHand;
+    private static Image closedHand;
+    private static Image defaultCursor;
+    private static Cursor emptyCursor;
+
+    private static Image background;
+
+    private static int WIDTH;
+    private static int HEIGHT;
     
     public static void main(String[] args) throws Exception {
-        panel = createPanel();
-        frame = createFrame(panel);
+        Card.loadImages();
+        Die.loadImages();
+
         initCards();
         initDice();
+        
+        panel = createPanel();
+        frame = createFrame(panel);
+
         // shuffle(cards);
         initCursors();
+        
+        generateBackground();
+        frame.setCursor(emptyCursor);
+
         panel.repaint();
     }
 
@@ -65,16 +82,15 @@ public class App {
     }
 
     private static void initCursors() {
+        cursor = new MyCursor();
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Image image = toolkit.getImage("icons/Open Hand.png");
-        openHand = toolkit.createCustomCursor(image , new Point(frame.getX(), 
-                       frame.getY()), "img");
-        image = toolkit.getImage("icons/Closed Hand.png");
-        closedHand = toolkit.createCustomCursor(image , new Point(frame.getX(), 
-                       frame.getY()), "img");
-        image = toolkit.getImage("icons/Default Hand.png");
-        defaultCursor = toolkit.createCustomCursor(image , new Point(frame.getX(), 
+        openHand = toolkit.getImage("icons/Open Hand.png");
+        closedHand = toolkit.getImage("icons/Closed Hand.png");
+        defaultCursor = toolkit.getImage("icons/Default Hand.png");
+        Image image = toolkit.getImage("icons/empty.png");
+        emptyCursor = toolkit.createCustomCursor(image , new Point(frame.getX(), 
                         frame.getY()), "img");
+        cursor.image = defaultCursor;
     }
 
     private static <T> void shuffle(List<T> l) {
@@ -102,12 +118,16 @@ public class App {
                 Graphics2D g2 = (Graphics2D)g;
                 g2.setColor(Color.black);
                 g2.fillRect(0, 0, frame.getWidth(), frame.getHeight());
+                if (background != null) {
+                    g2.drawImage(background, 0, 0, null);
+                }
                 for (int i = cards.size()-1; i >= 0; i--) {
                     cards.get(i).draw(g2);
                 }
                 for (Die die : dice) {
                     die.draw(g2);
                 }
+                cursor.draw(g2);
             };
         };
         return panel;
@@ -134,7 +154,7 @@ public class App {
             for (int i = 0; i < dice.size(); i++) {
                 Die cur = dice.get(i);
                 if (cur.inShape(x, y)) {
-                    frame.setCursor(closedHand);
+                    cursor.image = closedHand;
                     offset.x = x - (int)cur.getX();
                     offset.y = y - (int)cur.getY();
                     selectedDie = cur;
@@ -159,7 +179,7 @@ public class App {
                         cards.forEach(c -> c.selected = false);
                         cur.selected = true;
                         mainCard = cur;
-                        frame.setCursor(closedHand);
+                        cursor.image = closedHand;
                     }
                     if (!cur.isHeld()) {
                         cards.remove(i);
@@ -177,6 +197,10 @@ public class App {
         for (Card card : selectedCards) {
             card.touchEvent(x-offset.x, y-offset.y);
         }
+
+        
+        cursor.p.x = e.getX();
+        cursor.p.y = e.getY();
             
         panel.repaint();
     }
@@ -240,68 +264,19 @@ public class App {
             if (die.inShape(e.getX(), e.getY()))
                 b = true;
         if (b) 
-            frame.setCursor(openHand);
+            cursor.image = openHand;
         else
-            frame.setCursor(defaultCursor);
+            cursor.image = defaultCursor;
+        cursor.p.x = e.getX();
+        cursor.p.y = e.getY();
+        panel.repaint();
     }
 
-    public static JFrame getFrame() {
-        return frame;
-    }
+    private static void generateBackground() {
+        Dimension size = Toolkit.getDefaultToolkit(). getScreenSize();
+        WIDTH = (int)size.getWidth();
+        HEIGHT = (int)size.getHeight();
 
-    public static JPanel getPanel() {
-        return panel;
-    }
-
-    public static List<Card> getCards() {
-        return cards;
-    }
-
-    public static List<Die> getDice() {
-        return dice;
-    }
-
-    public static int getX() {
-        return x;
-    }
-
-    public static int getY() {
-        return y;
-    }
-
-    public static Card getMainCard() {
-        return mainCard;
-    }
-
-    public static List<Card> getSelectedCards() {
-        return selectedCards;
-    }
-
-    public static Die getSelectedDie() {
-        return selectedDie;
-    }
-
-    public static Point getOffset() {
-        return offset;
-    }
-
-    public static boolean isSelectingMultipleCards() {
-        return selectingMultipleCards;
-    }
-
-    public static boolean isSelectingExtraCard() {
-        return selectingExtraCard;
-    }
-
-    public static Cursor getOpenHand() {
-        return openHand;
-    }
-
-    public static Cursor getClosedHand() {
-        return closedHand;
-    }
-
-    public static Cursor getDefaultCursor() {
-        return defaultCursor;
+        background = BackgroundGenerator.generate(WIDTH, HEIGHT);
     }
 }
